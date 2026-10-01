@@ -1,0 +1,52 @@
+name: tic_tac_toe
+description: "A new Flutter project."
+publish_to: 'none'
+
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.13.4
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.8
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+  flutter_launcher_icons: ^0.14.4
+  flutter_native_splash: ^2.4.6
+
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "assets/images/tic_icon.png"
+  remove_alpha_ios: true
+  web:
+    generate: true
+    image_path: "assets/images/tic_icon.png"
+    background_color: "#000033"
+    theme_color: "#000033"
+  windows:
+    generate: true
+    image_path: "assets/images/tic_icon.png"
+    icon_size: 256
+
+flutter_native_splash:
+  color: "#000000"
+  background_image: assets/images/splash_tic.jpg
+  fullscreen: true
+  android_gravity: fill
+  ios_content_mode: scaleAspectFill
+  web: false
+
+  android_12:
+    color: "#000033"
+    image: assets/images/transparent.png
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/images/
