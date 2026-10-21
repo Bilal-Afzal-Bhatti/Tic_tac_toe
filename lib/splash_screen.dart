@@ -31,10 +31,14 @@ class _SplashScreenState extends State<SplashScreen> {
   void initState() {
     super.initState();
 
-    // hide top status bar and bottom navigation bar
-    SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive);
 
-    Timer(const Duration(seconds: 10), () {
+    Timer(const Duration(seconds: 3), () async {
+      if (!mounted) return;
+      await SystemChrome.setEnabledSystemUIMode(
+        SystemUiMode.manual,
+        overlays: SystemUiOverlay.values,
+      );
       if (!mounted) return;
       Navigator.pushReplacement(
         context,
@@ -45,7 +49,6 @@ class _SplashScreenState extends State<SplashScreen> {
 
   @override
   void dispose() {
-    // bring the bars back for the rest of the app
     SystemChrome.setEnabledSystemUIMode(
       SystemUiMode.manual,
       overlays: SystemUiOverlay.values,

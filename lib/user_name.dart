@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'home.dart';
 
 class UserNamePage extends StatefulWidget {
@@ -9,8 +10,11 @@ class UserNamePage extends StatefulWidget {
 }
 
 class _UserNamePageState extends State<UserNamePage> {
+  static const _nameKey = 'user_name';
+
   final TextEditingController _nameController = TextEditingController();
 
+  bool _loading = true; // true while the saved name is being read
   bool _nameDone = false; // false = name step, true = mode step
   String _userName = '';
   String _sign = 'X';
@@ -18,12 +22,33 @@ class _UserNamePageState extends State<UserNamePage> {
   int _rounds = 3;
 
   @override
+  void initState() {
+    super.initState();
+    _loadName();
+  }
+
+  @override
   void dispose() {
     _nameController.dispose();
     super.dispose();
   }
 
-  void _continue() {
+  // read the saved name; if it exists, skip the name step
+  Future<void> _loadName() async {
+    final prefs = await SharedPreferences.getInstance();
+    final saved = prefs.getString(_nameKey) ?? '';
+    if (!mounted) return;
+    setState(() {
+      if (saved.trim().isNotEmpty) {
+        _userName = saved;
+        _nameController.text = saved;
+        _nameDone = true;
+      }
+      _loading = false;
+    });
+  }
+
+  Future<void> _continue() async {
     final name = _nameController.text.trim();
     if (name.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -32,9 +57,22 @@ class _UserNamePageState extends State<UserNamePage> {
       return;
     }
     FocusScope.of(context).unfocus();
+
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_nameKey, name); // save once
+
+    if (!mounted) return;
     setState(() {
       _userName = name;
       _nameDone = true;
+    });
+  }
+
+  void _changeName() {
+    setState(() {
+      _nameController.text = _userName;
+      _nameDone = false;
+      _tournamentSelected = false;
     });
   }
 
@@ -54,6 +92,10 @@ class _UserNamePageState extends State<UserNamePage> {
 
   @override
   Widget build(BuildContext context) {
+    if (_loading) {
+      return const Scaffold(backgroundColor: Color(0xFF0F172A));
+    }
+
     return Scaffold(
       backgroundColor: const Color(0xFF0F172A),
       body: SafeArea(
@@ -73,7 +115,7 @@ class _UserNamePageState extends State<UserNamePage> {
     );
   }
 
-  // ---------- STEP 1: NAME ----------
+  // ---------- STEP 1: NAME (first time only) ----------
   Widget _nameStep() {
     return Column(
       key: const ValueKey('name'),
@@ -138,11 +180,17 @@ class _UserNamePageState extends State<UserNamePage> {
       mainAxisSize: MainAxisSize.min,
       children: [
         Text('Hi, $_userName 👋',
+            textAlign: TextAlign.center,
             style: const TextStyle(
                 fontSize: 28,
                 fontWeight: FontWeight.bold,
                 color: Colors.white)),
-        const SizedBox(height: 8),
+        TextButton(
+          onPressed: _changeName,
+          child: const Text('Change name',
+              style: TextStyle(color: Colors.white54)),
+        ),
+        const SizedBox(height: 4),
         const Text('Choose game mode',
             style: TextStyle(color: Colors.white60)),
         const SizedBox(height: 24),
